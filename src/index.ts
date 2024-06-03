@@ -25,14 +25,13 @@ export default {
 			cf: {
 				image: {
 					draw: [{
-						url: 'https://3dmaxter.com/wp-content/uploads/3dmaxter-icon.svg',
-						bottom: 5,
-						right: 5,
-						repeat: true,
+						url: 'https://i.imgur.com/xWbJByr_d.webp?maxwidth=1520&fidelity=grand',
+						bottom: 0,
+						right: 0,
 						fit: 'contain',
-						width: 300,
-						height: 300,
-						opacity: 0.2,
+						width: 250,
+						height: 250,
+						opacity: 1,
 					}]
 				}
 			}
