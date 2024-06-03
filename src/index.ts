@@ -25,12 +25,12 @@ export default {
 			cf: {
 				image: {
 					draw: [{
-						url: 'https://picsum.photos/id/237/100',
+						url: 'https://picsum.photos/id/237/300',
 						bottom: 5,
 						right: 5,
 						fit: 'contain',
-						width: 100,
-						height: 100,
+						width: 300,
+						height: 300,
 						opacity: 0.4,
 					}]
 				}
