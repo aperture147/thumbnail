@@ -1,18 +1,38 @@
-/**
- * Welcome to Cloudflare Workers! This is your first worker.
- *
- * - Run `npm run dev` in your terminal to start a development server
- * - Open a browser tab at http://localhost:8787/ to see your worker in action
- * - Run `npm run deploy` to publish your worker
- *
- * Bind resources to your worker in `wrangler.toml`. After adding bindings, a type definition for the
- * `Env` object can be regenerated with `npm run cf-typegen`.
- *
- * Learn more at https://developers.cloudflare.com/workers/
- */
+import { AwsClient } from 'aws4fetch'
+
+const PRESIGNED_URL_TIMEOUT = "60"
 
 export default {
 	async fetch(request: Request, env: Env, ctx: ExecutionContext): Promise<Response> {
-		return new Response('Hello World!');
+		const r2_client = new AwsClient({
+			accessKeyId: env.S3_ACCESS_KEY_ID,
+			secretAccessKey: env.S3_SECRET_ACCESS_KEY,
+		})
+		const url = new URL(request.url)
+		url.hostname = `${env.BUCKET_NAME}.${env.CF_ACCOUNT_ID}.r2.cloudflarestorage.com`
+		url.protocol = `https:`
+		url.searchParams.set("X-Amz-Expires", PRESIGNED_URL_TIMEOUT)
+		url.port = "443"
+		const signed = await r2_client.sign(
+			new Request(url, {
+			  method: "GET",
+			}),
+			{
+				aws: { signQuery: true },
+			}
+		);
+		const response = await fetch(signed, {
+			cf: {
+				image: {
+					brightness: 0.1,
+					draw: [{
+						url: 'https://picsum.photos/300',
+						repeat: true,
+					}]
+				}
+			}
+		})
+		// @ts-expect-error
+		return new Response(response.body, response)
 	},
 };
