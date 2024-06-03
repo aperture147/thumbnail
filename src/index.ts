@@ -25,7 +25,7 @@ export default {
 			cf: {
 				image: {
 					draw: [{
-						url: 'https://picsum.photos/id/237/300',
+						url: 'https://3dmaxter.com/wp-content/uploads/3dmaxter-icon.svg',
 						bottom: 5,
 						right: 5,
 						repeat: true,
