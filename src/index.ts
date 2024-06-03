@@ -28,10 +28,11 @@ export default {
 						url: 'https://picsum.photos/id/237/300',
 						bottom: 5,
 						right: 5,
+						repeat: true,
 						fit: 'contain',
 						width: 300,
 						height: 300,
-						opacity: 0.4,
+						opacity: 0.2,
 					}]
 				}
 			}
