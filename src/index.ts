@@ -36,6 +36,7 @@ export default {
 				}
 			}
 		})
+		response.headers.set('Cache-Control', 'public, max-age=31536000')
 		// @ts-expect-error
 		return new Response(response.body, response)
 	},
