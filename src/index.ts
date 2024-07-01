@@ -21,7 +21,8 @@ export default {
 				aws: { signQuery: true },
 			}
 		);
-		const response = await fetch(signed, {
+		// @ts-expect-error
+		return fetch(signed, {
 			cf: {
 				image: {
 					draw: [{
@@ -36,8 +37,5 @@ export default {
 				}
 			}
 		})
-		response.headers.set('Cache-Control', 'public, max-age=31536000')
-		// @ts-expect-error
-		return new Response(response.body, response)
 	},
 };
