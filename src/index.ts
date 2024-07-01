@@ -2,8 +2,15 @@ import { AwsClient } from 'aws4fetch'
 
 const PRESIGNED_URL_TIMEOUT = "60"
 
+
 export default {
 	async fetch(request: Request, env: Env, ctx: ExecutionContext): Promise<Response> {
+		const cache = caches.default
+		let response = await cache.match(request.url, {
+			ignoreMethod: true
+		})
+		if (response !== undefined)
+			return response
 		const r2_client = new AwsClient({
 			accessKeyId: env.S3_ACCESS_KEY_ID,
 			secretAccessKey: env.S3_SECRET_ACCESS_KEY,
@@ -21,8 +28,9 @@ export default {
 				aws: { signQuery: true },
 			}
 		);
+		
 		// @ts-expect-error
-		return fetch(signed, {
+		response = await fetch(signed, {
 			cf: {
 				image: {
 					draw: [{
@@ -37,5 +45,9 @@ export default {
 				}
 			}
 		})
+		// @ts-expect-error
+		await cache.put(request.url, response)
+		// @ts-expect-error
+		return response
 	},
 };
