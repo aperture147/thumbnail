@@ -31,6 +31,7 @@ export default {
 		
 		// @ts-expect-error
 		response = await fetch(signed, {
+			headers: request.headers,
 			cf: {
 				image: {
 					draw: [{
