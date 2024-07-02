@@ -45,8 +45,9 @@ export default {
 				}
 			}
 		})
+		const cachingResponse = response?.clone()
 		// @ts-expect-error
-		await cache.put(request.url, response)
+		await cache.put(request.url, cachingResponse)
 		// @ts-expect-error
 		return response
 	},
