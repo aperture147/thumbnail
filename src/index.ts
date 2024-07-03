@@ -100,7 +100,7 @@ export default {
 		const options: RequestInit<RequestInitCfProperties> = {
 			headers: request.headers,
 		}
-		if (isGGBot) {
+		if (!isGGBot) {
 			options.cf = {
 				image: {
 					draw: [{
