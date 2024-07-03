@@ -5,6 +5,16 @@ const PRESIGNED_URL_TIMEOUT = "60"
 const CACHE = caches.default
 
 const GOOGLE_BOT_IP_RANGE_URL = "https://developers.google.com/static/search/apis/ipranges/googlebot.json"
+const SPECIAL_CRAWLERS_IP_RANGE_URL = "https://developers.google.com/static/search/apis/ipranges/special-crawlers.json"
+const USER_TRIGGERED_FETCHERS_IP_RANGE_URL = "https://developers.google.com/static/search/apis/ipranges/user-triggered-fetchers.json"
+const USER_TRIGGERED_FETCHERS_GOOGLE_IP_RANGE_URL = "https://developers.google.com/static/search/apis/ipranges/user-triggered-fetchers-google.json"
+
+const IP_RANGE_LIST = [
+	GOOGLE_BOT_IP_RANGE_URL,
+	SPECIAL_CRAWLERS_IP_RANGE_URL,
+	USER_TRIGGERED_FETCHERS_IP_RANGE_URL,
+	USER_TRIGGERED_FETCHERS_GOOGLE_IP_RANGE_URL
+]
 
 interface IPPrefix {
 	ipv6Prefix?: string
@@ -27,19 +37,20 @@ const getParsedIDRangeDict = async (): Promise<ParsedIPRangeDict> => {
 	let parsedIPRangeDict = CACHED_IP_PREFIX.get(cacheKey)
 	if (parsedIPRangeDict !== undefined)
 		return parsedIPRangeDict
-
-	const resp = await fetch(GOOGLE_BOT_IP_RANGE_URL)
-	const ipRangeResponse = (await resp.json()) as IPRangeResponse
 	parsedIPRangeDict = {
 		ipv4: [],
 		ipv6: []
 	} as ParsedIPRangeDict
-	
-	for (const prefix of ipRangeResponse.prefixes) {
-		if (prefix.ipv4Prefix !== undefined)
-			parsedIPRangeDict.ipv4.push(new Address4(prefix.ipv4Prefix))
-		else if (prefix.ipv6Prefix !== undefined)
-			parsedIPRangeDict.ipv6.push(new Address6(prefix.ipv6Prefix))
+	for (const url of IP_RANGE_LIST) {
+		const resp = await fetch(url)
+		const ipRangeResponse = (await resp.json()) as IPRangeResponse
+		
+		for (const prefix of ipRangeResponse.prefixes) {
+			if (prefix.ipv4Prefix !== undefined)
+				parsedIPRangeDict.ipv4.push(new Address4(prefix.ipv4Prefix))
+			else if (prefix.ipv6Prefix !== undefined)
+				parsedIPRangeDict.ipv6.push(new Address6(prefix.ipv6Prefix))
+		}
 	}
 	CACHED_IP_PREFIX.clear()
 	CACHED_IP_PREFIX.set(cacheKey, parsedIPRangeDict)
