@@ -67,7 +67,9 @@ const isGoogleBot = async (ipAddress: string) => {
 
 export default {
 	async fetch(request: Request, env: Env, ctx: ExecutionContext): Promise<Response> {
-		const requestURL = new URL(request.url)
+		
+		let requestURL = new URL(request.url)
+		requestURL = new URL(requestURL.origin + requestURL.pathname)
 		const clientIP = request.headers.get("CF-Connecting-IP")
 		let isGGBot = false
 		if (clientIP !== null) {
@@ -97,9 +99,7 @@ export default {
 				aws: { signQuery: true },
 			}
 		);
-		const options: RequestInit<RequestInitCfProperties> = {
-			headers: request.headers,
-		}
+		const options: RequestInit<RequestInitCfProperties> = {}
 		if (!isGGBot) {
 			options.cf = {
 				image: {
