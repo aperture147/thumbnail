@@ -57,7 +57,6 @@ const isGoogleBot = async (ipAddress: string) => {
 		address = new Address4(ipAddress);
 		subnetList = parsedIDRangeDict.ipv4
 	}
-
 	for (const subnet of subnetList)
 		if (address.isInSubnet(subnet))
 			return true
@@ -71,7 +70,6 @@ export default {
 		let requestURL = new URL(request.url)
 		requestURL = new URL(requestURL.origin + requestURL.pathname)
 		const clientIP = request.headers.get("CF-Connecting-IP")
-		console.log(clientIP)
 		let isGGBot = false
 		if (clientIP !== null) {
 			isGGBot = await isGoogleBot(clientIP)
