@@ -79,7 +79,7 @@ export default {
 				requestURL.searchParams.append("is_google_bot", 'true')
 		}
 
-		let response = await CACHE.match(requestURL, { ignoreMethod: true })
+		let response = await CACHE.match(requestURL.toString(), { ignoreMethod: true })
 		if (response !== undefined)
 			return response
 
