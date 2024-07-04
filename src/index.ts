@@ -88,7 +88,9 @@ export default {
 				requestURL.searchParams.append("is_google_bot", 'true')
 		}
 
-		let response = await CACHE.match(requestURL.toString(), { ignoreMethod: true })
+		const requestURLString = requestURL.toString()
+
+		let response = await CACHE.match(requestURLString, { ignoreMethod: true })
 		if (response !== undefined)
 			return response
 
@@ -130,7 +132,7 @@ export default {
 		response = await fetch(signed, options)
 		const cachingResponse = response?.clone()
 		// @ts-expect-error
-		await CACHE.put(request.url, cachingResponse)
+		await CACHE.put(requestURLString, cachingResponse)
 		// @ts-expect-error
 		return response
 	},
