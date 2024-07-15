@@ -105,7 +105,7 @@ export default {
 		url.port = "443"
 		const signed = await r2_client.sign(
 			new Request(url, {
-			  method: "GET",
+				method: "GET",
 			}),
 			{
 				aws: { signQuery: true },
@@ -116,7 +116,7 @@ export default {
 			options.cf = {
 				image: {
 					draw: [{
-						url: 'https://i.imgur.com/xWbJByr_d.webp?maxwidth=1520&fidelity=grand',
+						url: 'https://i.imgur.com/xWbJByr.png',
 						bottom: 0,
 						right: 0,
 						fit: 'contain',
