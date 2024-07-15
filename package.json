@@ -18,6 +18,7 @@
   },
   "dependencies": {
     "aws4fetch": "^1.0.18",
-    "ip-address": "^9.0.5"
+    "ip-address": "^9.0.5",
+    "isbot": "^5.1.12"
   }
 }

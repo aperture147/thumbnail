@@ -1,5 +1,6 @@
 import { AwsClient } from 'aws4fetch'
 import { Address4, Address6 } from 'ip-address'
+import { isbot } from "isbot";
 
 const PRESIGNED_URL_TIMEOUT = "60"
 const CACHE = caches.default
@@ -82,14 +83,22 @@ export default {
 		
 		let requestURL = new URL(request.url)
 		requestURL = new URL(requestURL.origin + requestURL.pathname)
-
+		
 		let needWatermark = true
 
-
-		const clientIP = request.headers.get("CF-Connecting-IP")		
-		if (clientIP !== null) {
-			const isABot = await isKnownBotIpAddress(clientIP)
-			if (isABot) needWatermark = false
+		if (needWatermark) {
+			const userAgent = request.headers.get("User-Agent")
+			if (userAgent !== null) {
+				if (isbot(userAgent)) needWatermark = false
+			}
+		}
+		
+		if (needWatermark) {
+			const clientIP = request.headers.get("CF-Connecting-IP")		
+			if (clientIP !== null) {
+				const isABot = await isKnownBotIpAddress(clientIP)
+				if (isABot) needWatermark = false
+			}
 		}
 		
 		if (needWatermark) {
