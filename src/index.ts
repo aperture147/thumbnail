@@ -82,8 +82,11 @@ export default {
 		
 		let requestURL = new URL(request.url)
 		requestURL = new URL(requestURL.origin + requestURL.pathname)
-		const clientIP = request.headers.get("CF-Connecting-IP")
+
 		let needWatermark = true
+
+
+		const clientIP = request.headers.get("CF-Connecting-IP")		
 		if (clientIP !== null) {
 			const isABot = await isKnownBotIpAddress(clientIP)
 			if (isABot) needWatermark = false
@@ -105,7 +108,7 @@ export default {
 		if (response !== undefined)
 			return response
 
-		const r2_client = new AwsClient({
+		const r2Client = new AwsClient({
 			accessKeyId: env.S3_ACCESS_KEY_ID,
 			secretAccessKey: env.S3_SECRET_ACCESS_KEY,
 		})
@@ -114,7 +117,7 @@ export default {
 		url.protocol = `https:`
 		url.searchParams.set("X-Amz-Expires", PRESIGNED_URL_TIMEOUT)
 		url.port = "443"
-		const signed = await r2_client.sign(
+		const signed = await r2Client.sign(
 			new Request(url, {
 				method: "GET",
 			}),
