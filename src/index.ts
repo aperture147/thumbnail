@@ -60,7 +60,7 @@ const getParsedIDRangeDict = async (): Promise<ParsedIPRangeDict> => {
 	return parsedIPRangeDict
 }
 
-const isKnownBotIpAddress = async (ipAddress: string) => {
+const isKnownBotIPAddress = async (ipAddress: string) => {
 	const parsedIDRangeDict = await getParsedIDRangeDict()
 	let address = null
 	let subnetList = []
@@ -92,11 +92,11 @@ export default {
 				if (isbot(userAgent)) needWatermark = false
 			}
 		}
-		
+
 		if (needWatermark) {
 			const clientIP = request.headers.get("CF-Connecting-IP")		
 			if (clientIP !== null) {
-				const isABot = await isKnownBotIpAddress(clientIP)
+				const isABot = await isKnownBotIPAddress(clientIP)
 				if (isABot) needWatermark = false
 			}
 		}
