@@ -5,15 +5,17 @@ const PRESIGNED_URL_TIMEOUT = "60"
 const CACHE = caches.default
 
 const GOOGLE_BOT_IP_RANGE_URL = "https://developers.google.com/static/search/apis/ipranges/googlebot.json"
-const SPECIAL_CRAWLERS_IP_RANGE_URL = "https://developers.google.com/static/search/apis/ipranges/special-crawlers.json"
-const USER_TRIGGERED_FETCHERS_IP_RANGE_URL = "https://developers.google.com/static/search/apis/ipranges/user-triggered-fetchers.json"
-const USER_TRIGGERED_FETCHERS_GOOGLE_IP_RANGE_URL = "https://developers.google.com/static/search/apis/ipranges/user-triggered-fetchers-google.json"
+const GOOGLE_SPECIAL_CRAWLERS_IP_RANGE_URL = "https://developers.google.com/static/search/apis/ipranges/special-crawlers.json"
+const GOOGLE_USER_TRIGGERED_FETCHERS_IP_RANGE_URL = "https://developers.google.com/static/search/apis/ipranges/user-triggered-fetchers.json"
+const GOOGLE_USER_TRIGGERED_FETCHERS_GOOGLE_IP_RANGE_URL = "https://developers.google.com/static/search/apis/ipranges/user-triggered-fetchers-google.json"
+const BING_BOT_IP_RANGE_URL = "https://www.bing.com/toolbox/bingbot.json"
 
 const IP_RANGE_LIST = [
 	GOOGLE_BOT_IP_RANGE_URL,
-	SPECIAL_CRAWLERS_IP_RANGE_URL,
-	USER_TRIGGERED_FETCHERS_IP_RANGE_URL,
-	USER_TRIGGERED_FETCHERS_GOOGLE_IP_RANGE_URL
+	GOOGLE_SPECIAL_CRAWLERS_IP_RANGE_URL,
+	GOOGLE_USER_TRIGGERED_FETCHERS_IP_RANGE_URL,
+	GOOGLE_USER_TRIGGERED_FETCHERS_GOOGLE_IP_RANGE_URL,
+	BING_BOT_IP_RANGE_URL
 ]
 
 interface IPPrefix {
@@ -57,7 +59,7 @@ const getParsedIDRangeDict = async (): Promise<ParsedIPRangeDict> => {
 	return parsedIPRangeDict
 }
 
-const isGoogleBot = async (ipAddress: string) => {
+const isKnownBotIpAddress = async (ipAddress: string) => {
 	const parsedIDRangeDict = await getParsedIDRangeDict()
 	let address = null
 	let subnetList = []
@@ -81,11 +83,20 @@ export default {
 		let requestURL = new URL(request.url)
 		requestURL = new URL(requestURL.origin + requestURL.pathname)
 		const clientIP = request.headers.get("CF-Connecting-IP")
-		let isGGBot = false
+		let needWatermark = true
 		if (clientIP !== null) {
-			isGGBot = await isGoogleBot(clientIP)
-			if (isGGBot)
-				requestURL.searchParams.append("is_google_bot", 'true')
+			const isABot = await isKnownBotIpAddress(clientIP)
+			if (isABot) needWatermark = false
+		}
+		
+		if (needWatermark) {
+			const referer = request.headers.get("Referer")
+			if (referer && (referer !== undefined) && !referer.startsWith("https://3dmaxter.com/"))
+				needWatermark = false
+		}
+
+		if (needWatermark) {
+			requestURL.searchParams.append("need_watermark", 'true')
 		}
 
 		const requestURLString = requestURL.toString()
@@ -112,7 +123,7 @@ export default {
 			}
 		);
 		const options: RequestInit<RequestInitCfProperties> = {}
-		if (!isGGBot) {
+		if (needWatermark) {
 			options.cf = {
 				image: {
 					draw: [{
