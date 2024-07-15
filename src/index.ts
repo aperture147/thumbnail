@@ -101,11 +101,12 @@ export default {
 			}
 		}
 		
-		if (needWatermark) {
-			const referer = request.headers.get("Referer")
-			if (referer && (referer !== undefined) && !referer.startsWith("https://3dmaxter.com/"))
-				needWatermark = false
-		}
+		// NOTE: Disable needwatermark check for now
+		// if (needWatermark) {
+		// 	const referer = request.headers.get("Referer")
+		// 	if (referer && (referer !== undefined) && !referer.startsWith("https://3dmaxter.com/"))
+		// 		needWatermark = false
+		// }
 
 		if (needWatermark) {
 			requestURL.searchParams.append("need_watermark", 'true')
