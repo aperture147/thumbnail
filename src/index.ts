@@ -114,9 +114,8 @@ export default {
 		const requestURLString = requestURL.toString()
 		console.log(requestURLString)
 		let response = await cache.match(requestURLString, { ignoreMethod: true })
-		if ((response !== undefined) && (response !== null) && (response !== void 0)) {
+		if (response !== undefined)
 			return response
-		}
 
 		const r2Client = new AwsClient({
 			accessKeyId: env.S3_ACCESS_KEY_ID,
