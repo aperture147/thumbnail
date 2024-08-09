@@ -153,12 +153,11 @@ export default {
 
 		// @ts-expect-error
 		response = await fetch(signed, options)
-
 		// Must use Response constructor to inherit all of response's fields
 		// Reference: https://developers.cloudflare.com/workers/examples/cache-api/
-		const cachingResponse = new Response(response?.body, response)
-		await cache.put(requestURLString, cachingResponse)
-		// @ts-expect-error
+		response = new Response(response?.body, response)
+		ctx.waitUntil(cache.put(requestURLString, response.clone()))
+		
 		return response
 	},
 };
