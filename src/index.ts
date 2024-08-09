@@ -46,7 +46,7 @@ const getParsedIDRangeDict = async (): Promise<ParsedIPRangeDict> => {
 	for (const url of IP_RANGE_LIST) {
 		const resp = await fetch(url)
 		const ipRangeResponse = (await resp.json()) as IPRangeResponse
-		
+
 		for (const prefix of ipRangeResponse.prefixes) {
 			if (prefix.ipv4Prefix !== undefined)
 				parsedIPRangeDict.ipv4.push(new Address4(prefix.ipv4Prefix))
@@ -73,7 +73,7 @@ const isKnownBotIPAddress = async (ipAddress: string) => {
 	for (const subnet of subnetList)
 		if (address.isInSubnet(subnet))
 			return true
-	
+
 	return false
 }
 
@@ -82,7 +82,7 @@ export default {
 		const cache = caches.default
 		let requestURL = new URL(request.url)
 		requestURL = new URL(requestURL.origin + requestURL.pathname)
-		
+
 		let needWatermark = true
 
 		if (needWatermark) {
@@ -93,13 +93,13 @@ export default {
 		}
 
 		if (needWatermark) {
-			const clientIP = request.headers.get("CF-Connecting-IP")		
+			const clientIP = request.headers.get("CF-Connecting-IP")
 			if (clientIP !== null) {
 				const isABot = await isKnownBotIPAddress(clientIP)
 				if (isABot) needWatermark = false
 			}
 		}
-		
+
 		// NOTE: Disable needwatermark check for now
 		// if (needWatermark) {
 		// 	const referer = request.headers.get("Referer")
@@ -112,10 +112,11 @@ export default {
 		}
 
 		const requestURLString = requestURL.toString()
-
+		console.log(requestURLString)
 		let response = await cache.match(requestURLString, { ignoreMethod: true })
-		if ((response !== undefined) && (response !== null) && (response !== void 0))
+		if ((response !== undefined) && (response !== null) && (response !== void 0)) {
 			return response
+		}
 
 		const r2Client = new AwsClient({
 			accessKeyId: env.S3_ACCESS_KEY_ID,
@@ -153,8 +154,10 @@ export default {
 
 		// @ts-expect-error
 		response = await fetch(signed, options)
-		const cachingResponse = response?.clone()
-		// @ts-expect-error
+
+		// Must use Response constructor to inherit all of response's fields
+		// Reference: https://developers.cloudflare.com/workers/examples/cache-api/
+		const cachingResponse = new Response(response?.body, response)
 		await cache.put(requestURLString, cachingResponse)
 		// @ts-expect-error
 		return response
