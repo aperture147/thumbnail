@@ -3,7 +3,6 @@ import { Address4, Address6 } from 'ip-address'
 import { isbot } from "isbot";
 
 const PRESIGNED_URL_TIMEOUT = "60"
-const CACHE = caches.default
 
 const GOOGLE_BOT_IP_RANGE_URL = "https://developers.google.com/static/search/apis/ipranges/googlebot.json"
 const GOOGLE_SPECIAL_CRAWLERS_IP_RANGE_URL = "https://developers.google.com/static/search/apis/ipranges/special-crawlers.json"
@@ -80,7 +79,7 @@ const isKnownBotIPAddress = async (ipAddress: string) => {
 
 export default {
 	async fetch(request: Request, env: Env, ctx: ExecutionContext): Promise<Response> {
-		
+		const cache = caches.default
 		let requestURL = new URL(request.url)
 		requestURL = new URL(requestURL.origin + requestURL.pathname)
 		
@@ -114,7 +113,7 @@ export default {
 
 		const requestURLString = requestURL.toString()
 
-		let response = await CACHE.match(requestURLString, { ignoreMethod: true })
+		let response = await cache.match(requestURLString, { ignoreMethod: true })
 		if ((response !== undefined) && (response !== null) && (response !== void 0))
 			return response
 
@@ -156,7 +155,7 @@ export default {
 		response = await fetch(signed, options)
 		const cachingResponse = response?.clone()
 		// @ts-expect-error
-		await CACHE.put(requestURLString, cachingResponse)
+		await cache.put(requestURLString, cachingResponse)
 		// @ts-expect-error
 		return response
 	},
