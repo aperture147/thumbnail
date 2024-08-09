@@ -115,7 +115,7 @@ export default {
 		const requestURLString = requestURL.toString()
 
 		let response = await CACHE.match(requestURLString, { ignoreMethod: true })
-		if ((response !== undefined) && (response !== null))
+		if ((response !== undefined) && (response !== null) && (response !== void 0))
 			return response
 
 		const r2Client = new AwsClient({
