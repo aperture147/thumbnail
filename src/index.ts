@@ -112,7 +112,7 @@ export default {
 		}
 
 		const requestURLString = requestURL.toString()
-		console.log(requestURLString)
+		
 		let response = await cache.match(requestURLString, { ignoreMethod: true })
 		if (response !== undefined)
 			return response
