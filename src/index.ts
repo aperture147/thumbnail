@@ -83,7 +83,7 @@ interface ParsedIPRangeDict {
 let CACHED_IP_PREFIX = new Map<number, ParsedIPRangeDict>()
 
 const getParsedIDRangeDict = async (): Promise<ParsedIPRangeDict> => {
-	const cacheKey = Math.floor(Date.now() / 300000) // cache for 5 minutes
+	const cacheKey = Math.floor(Date.now() / 900000) // cache for 15 minutes
 	let parsedIPRangeDict = CACHED_IP_PREFIX.get(cacheKey)
 	if (parsedIPRangeDict !== undefined)
 		return parsedIPRangeDict
