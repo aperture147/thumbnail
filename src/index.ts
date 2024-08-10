@@ -129,7 +129,7 @@ export default {
 	async fetch(request: Request, env: Env, ctx: ExecutionContext): Promise<Response> {
 		const cache = caches.default
 		let requestURL = new URL(request.url)
-		requestURL.pathname = requestURL.pathname.replace(/\/+$/, "/")
+		requestURL.pathname = requestURL.pathname.replace(/\/+$/, "")
 		if (requestURL.pathname === "/robots.txt") {
 			return new Response(ROBOTS_TXT, {
 				headers: {
@@ -163,7 +163,7 @@ export default {
 		}
 
 		const requestURLString = requestURL.toString()
-		
+		console.log(requestURLString)
 		let response = await cache.match(requestURLString, { ignoreMethod: true })
 		if (response !== undefined)
 			return response
