@@ -125,12 +125,14 @@ const isKnownBotIPAddress = async (ipAddress: string) => {
 	return false
 }
 
+const TRAILING_SLASH_REGEX = /\/+$/;
+
 export default {
 	async fetch(request: Request, env: Env, ctx: ExecutionContext): Promise<Response> {
 		const cache = caches.default
 		let requestURL = new URL(request.url)
 		// remove trailing slash
-		requestURL.pathname = requestURL.pathname.replace(/\/+$/, "")
+		requestURL.pathname = requestURL.pathname.replace(TRAILING_SLASH_REGEX, "")
 		if (requestURL.pathname === "/robots.txt") {
 			return new Response(ROBOTS_TXT, {
 				headers: {
