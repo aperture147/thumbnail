@@ -129,6 +129,7 @@ export default {
 	async fetch(request: Request, env: Env, ctx: ExecutionContext): Promise<Response> {
 		const cache = caches.default
 		let requestURL = new URL(request.url)
+		// remove trailing slash
 		requestURL.pathname = requestURL.pathname.replace(/\/+$/, "")
 		if (requestURL.pathname === "/robots.txt") {
 			return new Response(ROBOTS_TXT, {
