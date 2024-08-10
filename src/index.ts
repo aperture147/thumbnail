@@ -129,7 +129,8 @@ export default {
 	async fetch(request: Request, env: Env, ctx: ExecutionContext): Promise<Response> {
 		const cache = caches.default
 		let requestURL = new URL(request.url)
-		if (requestURL.pathname.startsWith("/robots.txt")) {
+		requestURL.pathname = requestURL.pathname.replace(/\/+$/, "/")
+		if (requestURL.pathname === "/robots.txt") {
 			return new Response(ROBOTS_TXT, {
 				headers: {
 					'Content-Type': 'text/plain'
@@ -150,7 +151,7 @@ export default {
 			}
 		}
 
-		// NOTE: Disable needwatermark check for now
+		// NOTE: Disable needWatermark for Referer check for now
 		// if (needWatermark) {
 		// 	const referer = request.headers.get("Referer")
 		// 	if (referer && (referer !== undefined) && !referer.startsWith("https://3dmaxter.com/"))
@@ -203,6 +204,11 @@ export default {
 
 		// @ts-expect-error
 		response = await fetch(signed, options)
+		
+		// Stop hitting the cache and return the response immediately on error
+		if (response === undefined) return new Response("Not Found", { status: 404 })
+		if (!response.ok) return response
+
 		// Must use Response constructor to inherit all of response's fields
 		// Reference: https://developers.cloudflare.com/workers/examples/cache-api/
 		response = new Response(response?.body, response)
