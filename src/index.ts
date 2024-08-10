@@ -9,14 +9,62 @@ const GOOGLE_SPECIAL_CRAWLERS_IP_RANGE_URL = "https://developers.google.com/stat
 const GOOGLE_USER_TRIGGERED_FETCHERS_IP_RANGE_URL = "https://developers.google.com/static/search/apis/ipranges/user-triggered-fetchers.json"
 const GOOGLE_USER_TRIGGERED_FETCHERS_GOOGLE_IP_RANGE_URL = "https://developers.google.com/static/search/apis/ipranges/user-triggered-fetchers-google.json"
 const BING_BOT_IP_RANGE_URL = "https://www.bing.com/toolbox/bingbot.json"
+const APPLE_BOT_IP_RANGE_URL = "https://search.developer.apple.com/applebot.json"
 
 const IP_RANGE_LIST = [
 	GOOGLE_BOT_IP_RANGE_URL,
 	GOOGLE_SPECIAL_CRAWLERS_IP_RANGE_URL,
 	GOOGLE_USER_TRIGGERED_FETCHERS_IP_RANGE_URL,
 	GOOGLE_USER_TRIGGERED_FETCHERS_GOOGLE_IP_RANGE_URL,
-	BING_BOT_IP_RANGE_URL
+	BING_BOT_IP_RANGE_URL,
+	APPLE_BOT_IP_RANGE_URL
 ]
+
+const ROBOTS_TXT = `
+# Allow search engine bots
+User-agent: Googlebot
+Allow: /
+User-agent: Bingbot
+Allow: /
+User-agent: Baiduspider
+Allow: /
+User-agent: YandexBot
+Allow: /
+User-agent: NaverBot
+Allow: /
+User-agent: DuckDuckBot
+Allow: /
+User-agent: Applebot
+Allow: /
+User-agent: seznambot
+Allow: /
+User-agent: msnbot
+Allow: /
+User-agent: Slurp
+Allow: /
+
+# Allow social media bots
+User-agent: facebookexternalhit
+Allow: /
+User-agent: Twitterbot
+Allow: /
+User-agent: LinkedInBot
+Allow: /
+User-agent: Discordbot
+Allow: /
+User-agent: Pinterestbot
+Allow: /
+User-agent: TelegramBot
+Allow: /
+
+# Allow SEO tools
+User-agent: Screaming Frog SEO Spider
+Allow: /
+
+# Disallow all bots
+User-agent: *
+Disallow: /
+`
 
 interface IPPrefix {
 	ipv6Prefix?: string
@@ -81,20 +129,22 @@ export default {
 	async fetch(request: Request, env: Env, ctx: ExecutionContext): Promise<Response> {
 		const cache = caches.default
 		let requestURL = new URL(request.url)
+		if (requestURL.pathname.startsWith("/robots.txt")) {
+			return new Response(ROBOTS_TXT, {
+				headers: {
+					'Content-Type': 'text/plain'
+				}
+			})
+		}
 		requestURL = new URL(requestURL.origin + requestURL.pathname)
-
 		let needWatermark = true
 
-		if (needWatermark) {
-			const userAgent = request.headers.get("User-Agent")
-			if (userAgent !== null) {
-				if (isbot(userAgent)) needWatermark = false
-			}
-		}
+		const userAgent = request.headers.get("User-Agent")
+		if (userAgent && isbot(userAgent)) needWatermark = false
 
 		if (needWatermark) {
 			const clientIP = request.headers.get("CF-Connecting-IP")
-			if (clientIP !== null) {
+			if (clientIP) {
 				const isABot = await isKnownBotIPAddress(clientIP)
 				if (isABot) needWatermark = false
 			}
@@ -156,6 +206,7 @@ export default {
 		// Must use Response constructor to inherit all of response's fields
 		// Reference: https://developers.cloudflare.com/workers/examples/cache-api/
 		response = new Response(response?.body, response)
+		response.headers.set("Cache-Control", "public, max-age=31536000, s-maxage=31536000")
 		ctx.waitUntil(cache.put(requestURLString, response.clone()))
 		
 		return response
