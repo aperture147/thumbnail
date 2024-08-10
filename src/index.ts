@@ -20,8 +20,7 @@ const IP_RANGE_LIST = [
 	APPLE_BOT_IP_RANGE_URL
 ]
 
-const ROBOTS_TXT = `
-# Allow search engine bots
+const ROBOTS_TXT = `# Allow search engine bots
 User-agent: Googlebot
 Allow: /
 User-agent: Bingbot
