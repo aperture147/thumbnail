@@ -1,6 +1,7 @@
 import { AwsClient } from 'aws4fetch'
 import { Address4, Address6 } from 'ip-address'
 import { isbot } from "isbot";
+import { PhotonImage, watermark } from "@cf-wasm/photon";
 
 const PRESIGNED_URL_TIMEOUT = "60"
 
@@ -10,6 +11,8 @@ const GOOGLE_USER_TRIGGERED_FETCHERS_IP_RANGE_URL = "https://developers.google.c
 const GOOGLE_USER_TRIGGERED_FETCHERS_GOOGLE_IP_RANGE_URL = "https://developers.google.com/static/search/apis/ipranges/user-triggered-fetchers-google.json"
 const BING_BOT_IP_RANGE_URL = "https://www.bing.com/toolbox/bingbot.json"
 const APPLE_BOT_IP_RANGE_URL = "https://search.developer.apple.com/applebot.json"
+
+const WATERMARK_URL = 'https://i.imgur.com/xWbJByr.png'
 
 const IP_RANGE_LIST = [
 	GOOGLE_BOT_IP_RANGE_URL,
@@ -124,6 +127,14 @@ const isKnownBotIPAddress = async (ipAddress: string) => {
 	return false
 }
 
+const getPhotonImage = async (url: string | URL) => {
+	const watermarkBuf = await fetch(url)
+		.then((res) => res.arrayBuffer())
+      	.then((buffer) => new Uint8Array(buffer));
+	return PhotonImage.new_from_byteslice(watermarkBuf)
+}
+
+const WATERMARK_IMAGE = await getPhotonImage(WATERMARK_URL)
 const TRAILING_SLASH_REGEX = /\/+$/;
 
 export default {
@@ -187,35 +198,22 @@ export default {
 				aws: { signQuery: true },
 			}
 		);
-		const options: RequestInit<RequestInitCfProperties> = {}
-		if (needWatermark) {
-			options.cf = {
-				image: {
-					draw: [{
-						url: 'https://i.imgur.com/xWbJByr.png',
-						bottom: 0,
-						right: 0,
-						fit: 'contain',
-						width: 250,
-						height: 250,
-						opacity: 1,
-					}]
-				}
-			}
-		}
 
-		// @ts-expect-error
-		response = await fetch(signed, options)
+		const imageResponse = await fetch(signed)
 		
-		// Stop hitting the cache and return the response immediately on error
-		if (response === undefined) return new Response("Not Found", { status: 404 })
-		if (!response.ok) return response
-
+		const img = PhotonImage.new_from_byteslice(new Uint8Array(await imageResponse.arrayBuffer()))
+		if (needWatermark) {
+			const x = BigInt(img.get_width() - WATERMARK_IMAGE.get_width())
+			const y = BigInt(img.get_height() - WATERMARK_IMAGE.get_height())
+			watermark(img, WATERMARK_IMAGE, x, y)
+		}
+		
 		// Must use Response constructor to inherit all of response's fields
 		// Reference: https://developers.cloudflare.com/workers/examples/cache-api/
-		response = new Response(response?.body, response)
+		response = new Response(img.get_bytes_webp(), imageResponse)
 		response.headers.set("Cache-Control", "public, max-age=31536000, s-maxage=31536000")
-		ctx.waitUntil(cache.put(requestURLString, response.clone()))
+		
+		ctx.waitUntil(cache.put(requestURLString, response.clone()).then(img.free))
 		
 		return response
 	},
