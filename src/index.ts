@@ -1,7 +1,7 @@
 import { AwsClient } from 'aws4fetch'
 import { Address4, Address6 } from 'ip-address'
 import { isbot } from "isbot";
-import { PhotonImage, watermark, SamplingFilter, resize } from "@cf-wasm/photon";
+import { PhotonImage, watermark } from "@cf-wasm/photon";
 
 const PRESIGNED_URL_TIMEOUT = "60"
 
@@ -11,8 +11,6 @@ const GOOGLE_USER_TRIGGERED_FETCHERS_IP_RANGE_URL = "https://developers.google.c
 const GOOGLE_USER_TRIGGERED_FETCHERS_GOOGLE_IP_RANGE_URL = "https://developers.google.com/static/search/apis/ipranges/user-triggered-fetchers-google.json"
 const BING_BOT_IP_RANGE_URL = "https://www.bing.com/toolbox/bingbot.json"
 const APPLE_BOT_IP_RANGE_URL = "https://search.developer.apple.com/applebot.json"
-
-const WATERMARK_URL = 'https://i.imgur.com/xWbJByr.png'
 
 const IP_RANGE_LIST = [
 	GOOGLE_BOT_IP_RANGE_URL,
