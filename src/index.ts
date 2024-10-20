@@ -81,6 +81,16 @@ interface ParsedIPRangeDict {
 
 let CACHED_IP_PREFIX = new Map<number, ParsedIPRangeDict>()
 
+const FAVICON_LIST = [
+	'android-chrome-192x192.png',
+	'android-chrome-512x512.png',
+	'apple-touch-icon.png',
+	'favicon-16x16.png',
+	'favicon-32x32.png',
+	'favicon.ico',
+	'site.webmanifest'
+]
+
 const getParsedIDRangeDict = async (): Promise<ParsedIPRangeDict> => {
 	const cacheKey = Math.floor(Date.now() / 900000) // cache for 15 minutes
 	let parsedIPRangeDict = CACHED_IP_PREFIX.get(cacheKey)
@@ -151,6 +161,10 @@ export default {
 				const isABot = await isKnownBotIPAddress(clientIP)
 				if (isABot) needWatermark = false
 			}
+		}
+
+		if (needWatermark) {
+			if (FAVICON_LIST.includes(requestURL.pathname)) needWatermark = false
 		}
 
 		// NOTE: Disable needWatermark for Referer check for now
