@@ -82,13 +82,13 @@ interface ParsedIPRangeDict {
 let CACHED_IP_PREFIX = new Map<number, ParsedIPRangeDict>()
 
 const FAVICON_LIST = [
-	'android-chrome-192x192.png',
-	'android-chrome-512x512.png',
-	'apple-touch-icon.png',
-	'favicon-16x16.png',
-	'favicon-32x32.png',
-	'favicon.ico',
-	'site.webmanifest'
+	'/android-chrome-192x192.png',
+	'/android-chrome-512x512.png',
+	'/apple-touch-icon.png',
+	'/favicon-16x16.png',
+	'/favicon-32x32.png',
+	'/favicon.ico',
+	'/site.webmanifest'
 ]
 
 const getParsedIDRangeDict = async (): Promise<ParsedIPRangeDict> => {
