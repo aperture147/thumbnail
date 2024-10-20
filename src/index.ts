@@ -217,8 +217,7 @@ export default {
 				}
 			}
 		}
-
-		// @ts-expect-error
+		
 		response = await fetch(signed, options)
 		
 		// Stop hitting the cache and return the response immediately on error
